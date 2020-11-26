@@ -21,6 +21,72 @@ def LOAD(arr):
     return pd.Series(arr)
 
 
+# strategy for Bollinger
+class BOLLstrategy(Strategy):
+    def init(self):
+        x = Indicator('data/predict-0027.HK.csv')
+        x.bollinger()
+
+        #
+        # Input: array of the buy&sell signal
+        #
+
+        self.sellS = x.data['Bollinger_Sell'].to_numpy()
+        self.buyS = x.data['Bollinger_Buy'].to_numpy()
+        self.s = self.I(LOAD, self.sellS, name='sellSIGNAL')
+        self.b = self.I(LOAD, self.buyS, name='buySIGNAL')
+
+    def next(self):
+        if self.s == 1:
+            self.sell()
+        elif self.b == 1:
+            self.buy()
+
+
+# strategy for Mean-Reversion
+# something wrong with these strategy
+class MRstrategy(Strategy):
+    def init(self):
+        x = Indicator('data/predict-0027.HK.csv')
+        x.mean_reversion(0.09)
+
+        #
+        # Input: array of the buy&sell signal
+        #
+
+        self.signal = x.data['MR_Signal'].to_numpy()
+        # self.s = self.I(LOAD, self.sellS, name='sellSIGNAL')
+        # self.b = self.I(LOAD, self.buyS, name='buySIGNAL')
+
+    # def next(self):
+        # if self.s == 1:
+        #     self.sell()
+        # elif self.b == 1:
+        #     self.buy()
+
+
+# strategy for MACD
+class MACDstrategy(Strategy):
+    def init(self):
+        x = Indicator('data/predict-0027.HK.csv')
+        x.macd()
+
+        #
+        # Input: array of the buy&sell signal
+        #
+
+        self.sellS = x.data['MACD_Sell'].to_numpy()
+        self.buyS = x.data['MACD_Buy'].to_numpy()
+        self.s = self.I(LOAD, self.sellS, name='sellSIGNAL')
+        self.b = self.I(LOAD, self.buyS, name='buySIGNAL')
+
+    def next(self):
+        if self.s == 1:
+            self.sell()
+        elif self.b == 1:
+            self.buy()
+
+
 # strategy for KDJ
 class KDJstrategy(Strategy):
     def init(self):
@@ -31,8 +97,52 @@ class KDJstrategy(Strategy):
         # Input: array of the buy&sell signal
         #
 
-        self.buyS = x.data['KDJ_Buy'].to_numpy()
         self.sellS = x.data['KDJ_Sell'].to_numpy()
+        self.buyS = x.data['KDJ_Buy'].to_numpy()
+        self.s = self.I(LOAD, self.sellS, name='sellSIGNAL')
+        self.b = self.I(LOAD, self.buyS, name='buySIGNAL')
+
+    def next(self):
+        if self.s == 1:
+            self.sell()
+        elif self.b == 1:
+            self.buy()
+
+
+# strategy for MA
+class MAstrategy(Strategy):
+    def init(self):
+        x = Indicator('data/predict-0027.HK.csv')
+        x.ma()
+
+        #
+        # Input: array of the buy&sell signal
+        #
+
+        self.sellS = x.data['MA_Sell'].to_numpy()
+        self.buyS = x.data['MA_Buy'].to_numpy()
+        self.s = self.I(LOAD, self.sellS, name='sellSIGNAL')
+        self.b = self.I(LOAD, self.buyS, name='buySIGNAL')
+
+    def next(self):
+        if self.s == 1:
+            self.sell()
+        elif self.b == 1:
+            self.buy()
+
+
+# strategy for RSI
+class RSIstrategy(Strategy):
+    def init(self):
+        x = Indicator('data/predict-0027.HK.csv')
+        x.rsi()
+
+        #
+        # Input: array of the buy&sell signal
+        #
+
+        self.sellS = x.data['RSI_Sell'].to_numpy()
+        self.buyS = x.data['RSI_Buy'].to_numpy()
         self.s = self.I(LOAD, self.sellS, name='sellSIGNAL')
         self.b = self.I(LOAD, self.buyS, name='buySIGNAL')
 
@@ -50,7 +160,12 @@ if __name__ == '__main__':
 
     # Use the backtest function to get the represent your buy&sell process
     # You can change your strategy for the backtesting
-    bt = Backtest(stockData, KDJstrategy, cash=10000, commission=.002, exclusive_orders=True)
+    bt = Backtest(stockData, BOLLstrategy, cash=10000, commission=.002, exclusive_orders=True)
+    # bt = Backtest(stockData, MRstrategy, cash=10000, commission=.002, exclusive_orders=True)
+    # bt = Backtest(stockData, MACDstrategy, cash=10000, commission=.002, exclusive_orders=True)
+    # bt = Backtest(stockData, KDJstrategy, cash=10000, commission=.002, exclusive_orders=True)
+    # bt = Backtest(stockData, MAstrategy, cash=10000, commission=.002, exclusive_orders=True)
+    # bt = Backtest(stockData, RSIstrategy, cash=10000, commission=.002, exclusive_orders=True)
     stats = bt.run()
     bt.plot()
     print(stats)
